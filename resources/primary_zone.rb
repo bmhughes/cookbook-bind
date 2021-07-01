@@ -30,7 +30,7 @@ action_class do
       group service_resource.run_group
       mode '0644'
       action file_action
-      notifies :restart, "bind_service[#{service_resource.name}]", :delayed
+      notifies :reload, "bind_service[#{service_resource.name}]", :delayed
     end
 
     config_template.variables[:primary_zones] << PrimaryZone.new(

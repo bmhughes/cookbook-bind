@@ -203,7 +203,7 @@ action :create do
       )
       action :nothing
       delayed_action :create
-      notifies :restart, 'bind_service[default]', :immediately
+      notifies :restart, 'bind_service[default]', :delayed
       cookbook 'bind'
       source 'named.conf.erb'
     end

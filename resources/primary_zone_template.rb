@@ -95,7 +95,7 @@ action_class do
       )
       mode '0440'
       action file_action
-      notifies :restart, "bind_service[#{bind_service.name}]", :delayed
+      notifies :reload, "bind_service[#{bind_service.name}]", :delayed
     end
 
     bind_config_template = with_run_context :root do

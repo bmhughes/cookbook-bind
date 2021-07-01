@@ -12,6 +12,18 @@ property :service_name, String, default: lazy { default_property_for(:service_na
 
 include BindCookbook::Helpers
 
+action_class do
+  def do_service_action(resource_action)
+    with_run_context(:root) do
+      if %i(start restart reload).include?(resource_action)
+        declare_resource(:service, new_resource.service_name) { delayed_action(resource_action) }
+      else
+        declare_resource(:service, new_resource.service_name) { action(resource_action) }
+      end
+    end
+  end
+end
+
 action :create do
   if new_resource.chroot && platform?('ubuntu') && node['platform_version'] == '16.04'
     Chef::Log.fatal('Ubuntu 16.04 LTS is incompatible with BIND9 in CHROOT setups')
@@ -138,17 +150,6 @@ action :create do
   end
 end
 
-action :start do
-  with_run_context :root do
-    service new_resource.service_name do
-      action :enable
-      delayed_action :start
-    end
-  end
-end
-
-action :restart do
-  service new_resource.service_name do
-    action :restart
-  end
+%i(start stop restart reload enable disable).each do |action_type|
+  send(:action, action_type) { do_service_action(action) }
 end
